@@ -7,7 +7,8 @@
 
 using namespace std;
 
-string toLowerCase(const string& input) {
+string toLowerCase(const string& input) 
+{
     string result = input;
     for (char& c : result) {
         c = tolower(c);
@@ -33,7 +34,7 @@ class OpenAndReadFile
             string line;
             while (getline(infile, line)) 
             {
-                if (!line.empty() && line.back() == '\r') // check if last character is carriage return
+                if (!line.empty() && line.back() == '\r')
                 {
                     line.erase(line.size() - 1);
                 }
@@ -69,7 +70,7 @@ class TweetFilter
             for (int i = 0; i < tweets.size(); i++) 
             {
                 string& tweet = tweets[i];
-                string filteredTweet = tweet; // create a copy of the tweet
+                string filteredTweet = tweet; 
                 for (int j = 0; j < words.size(); j++) 
                 {
                     const string& word = words[j];
@@ -81,7 +82,7 @@ class TweetFilter
                         pos += word.size();
                     }
                 }
-                filteredTweets.push_back(filteredTweet); // add filtered tweet to the vector
+                filteredTweets.push_back(filteredTweet); 
             }
             return filteredTweets;
         }
@@ -110,10 +111,10 @@ class CreateAndWriteToFile
     public:
         string appendFiltered(string filename)
         {
-            size_t dotIndex = filename.find_last_of('.'); // Find the last dot (.) in the filename
-            string nameWithoutExtension = filename.substr(0, dotIndex); // Extract the filename without extension
-            string extension = filename.substr(dotIndex); // Extract the file extension
-            return nameWithoutExtension + "Filtered" + extension; // Append "Filtered" and the extension to the filename
+            size_t dotIndex = filename.find_last_of('.'); 
+            string nameWithoutExtension = filename.substr(0, dotIndex); 
+            string extension = filename.substr(dotIndex);
+            return nameWithoutExtension + "Filtered" + extension; 
         }
 
         CreateAndWriteToFile(vector<string> contentsToWrite, string fileName)
@@ -136,53 +137,56 @@ class CreateAndWriteToFile
 
 class TweetSentimentAnalyzer
 {
-public:
-    vector<string> positiveWords;
-    vector<string> negativeWords;
-    vector<string> tweets; // Change to vector of vector of strings for multiple tweets
+    public:
+        vector<string> positiveWords;
+        vector<string> negativeWords;
+        vector<string> tweets;
 
-    TweetSentimentAnalyzer(vector<string> positiveWords, vector<string> negativeWords, vector<string> tweets) // Modify the constructor to take vector of vector of strings
-    {
-        this->positiveWords = positiveWords; // Assign positiveWords vector
-        this->negativeWords = negativeWords; // Assign negativeWords vector
-        this->tweets = tweets; // Assign tweets vector
-    }
-
-    vector<string> analyzeTweetSentiment() // Modify return type to vector of ints
-    {
-        vector<string> sentimentScores; // Create a vector to store sentiment scores for each tweet
-        for (auto& tweet : tweets) // Iterate through each tweet in the vector of tweets
+        TweetSentimentAnalyzer(vector<string> positiveWords, 
+                               vector<string> negativeWords, 
+                               vector<string> tweets) 
         {
-            int positiveCount = countMatches(tweet, positiveWords); // Call countMatches for positiveWords
-            int negativeCount = countMatches(tweet, negativeWords); // Call countMatches for negativeWords
-
-            string sentimentScore = positiveCount > negativeCount ? "Positive" : (negativeCount > positiveCount ? "Negative" : "Neutral"); // Calculate sentiment score for the tweet
-            sentimentScores.push_back(sentimentScore); // Store sentiment score in the vector
+            this->positiveWords = positiveWords; 
+            this->negativeWords = negativeWords;
+            this->tweets = tweets;
         }
-        return sentimentScores; // Return the vector of sentiment scores
-    }
 
-    int countMatches(string tweet, vector<string>& words) // Modify parameter type to vector of strings
-{
-    int count = 0;
-    for (const auto& word : words)
-    {
-        if (toLowerCase(tweet).find(toLowerCase(word)) != string::npos) // Call find on tweet instead of tweetWord
+        vector<string> analyzeTweetSentiment() 
         {
-            count++;
-        }
-    }
-    return count;
-}
+            vector<string> sentimentScores;
+            for (auto& tweet : tweets) 
+            {
+                int positiveCount = countMatches(tweet, positiveWords); 
+                int negativeCount = countMatches(tweet, negativeWords); 
 
+                string sentimentScore = positiveCount > negativeCount ? \
+                "Positive" : (negativeCount > positiveCount ? "Negative" : "Neutral"); 
+                sentimentScores.push_back(sentimentScore); 
+            }
+            return sentimentScores; 
+        }
+
+        int countMatches(string tweet, vector<string>& words) 
+        {
+            int count = 0;
+            for (const auto& word : words)
+            {
+                if (toLowerCase(tweet).find(toLowerCase(word)) != string::npos)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
 };
 
-vector<int> TweetFilter::counterArray; // Define the static vector in the implementation file
+vector<int> TweetFilter::counterArray;  
 
 int main() 
 {
     vector<vector<string>> vectorOfTweets;
-    vector<string> tweetsToRead = {"tweets1.txt", "tweets2.txt", "tweets3.txt", "tweets4.txt"};
+    vector<string> tweetsToRead = {"tweets1.txt", "tweets2.txt", "tweets3.txt",
+                                   "tweets4.txt"};
 
     OpenAndReadFile postiveReader("positive.txt");
     vector<string> positive = postiveReader.getLines();
@@ -204,6 +208,7 @@ int main()
         {
             TweetFilter::counterArray.resize(words.size());
         }
+
         vector<int> filteredWords = filter.replaceMiddleChars();
         vector<string> filteredTweets = filter.filter();
         
@@ -211,31 +216,29 @@ int main()
         vector<string> scores = tsa.analyzeTweetSentiment();
 
         cout << "Sentiment Analysis for " << tweetsToRead[i] << "\n" << endl;
-        for(size_t j=0; j<vectorOfTweets[i].size();j++)
+        for(size_t j=0; j<filteredTweets.size();j++)
         {
-            cout << scores[j] << "\t: " << vectorOfTweets[i][j] << endl;
+            cout << scores[j] << "\t: " << filteredTweets[j] << endl;
         }
-
         cout << "----------------------------------------" << endl;
+
         CreateAndWriteToFile write(filteredTweets, tweetsToRead[i]);        
     }
 
-     vector<pair<int, int> > vp;
+    vector<pair<int, int> > vp;
     cout << "Top 10 Words found in all files: \n" << endl;
     for (int i = 0; i < words.size(); ++i) 
     {
-           vp.push_back(make_pair(TweetFilter::counterArray[i], i));
-            }
-        
-            sort(vp.begin(), vp.end());
+        vp.push_back(make_pair(TweetFilter::counterArray[i], i));
+    }
+      
+    sort(vp.begin(), vp.end());
 
-            for(int i = words.size() - 1;i >= words.size()-10 &&  i>=0; --i)
-            {
-                cout << "Found " <<  words[vp[i].second] << "\t "
-                << vp[i].first << " times."<< endl;
-            }
-
-    
+    for(int i = words.size() - 1;i >= words.size()-10 &&  i>=0; --i)
+    {
+        cout << "Found " <<  words[vp[i].second] << "\t "
+             << vp[i].first << " times."<< endl;
+    }
 
     return 0;
 }
