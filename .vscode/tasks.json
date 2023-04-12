@@ -2,29 +2,20 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
-            "type": "shell",
+            "type": "cppbuild",
+            "label": "build",
             "command": "g++",
             "args": [
                 "-g",
-                "main.cpp",
+                "${workspaceFolder}/your_source_file.cpp",
                 "-o",
-                "main"
+                "${workspaceFolder}/a.out"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
-        },
-        {
-            "label": "Run",
-            "type": "shell",
-            "command": "./main",
-            "dependsOn": "Build",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
+            },
+            "problemMatcher": "$gcc"
         }
     ]
 }
