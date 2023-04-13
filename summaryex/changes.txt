@@ -1,0 +1,11 @@
+- changed variable types in for loop in print file to avoid plagiarism claims
+- rather than read in file in every method / etc, read it in once in main
+- changed team/player search, rather than use hardcoded, read in teams, used a set 
+- 
+
+
+- <vector<vector<string>>
+
+VECTOR (ALL STATS)
+    VECTOR (NAME, TEAM, GS, YC, RC)
+        STRING

@@ -4,9 +4,12 @@
 #include <sstream>
 #include<vector>
 #include <string>
+#include <set>  
 using namespace std;
-const int navMenuUpperBound=4;
+
+const int navMenuUpperBound = 5;
 const int navMenuLowerBound = 1;
+
 struct Player {
     string name;
     string team;
@@ -15,10 +18,12 @@ struct Player {
     int yellowCards = 0;
 };
 
-void addPlayer(vector<Player>& players) {
+void addPlayer(vector<Player>& players) 
+{
     Player newPlayer;
     cout << "Enter the players name:\t" << endl;
     cin >> newPlayer.name;
+
     while (1)
     {
         if (cin.fail())
@@ -47,6 +52,7 @@ void addPlayer(vector<Player>& players) {
 
     players.push_back(newPlayer);
 }
+
 string toLower(string myString)
 {
     string lowerString;
@@ -54,23 +60,25 @@ string toLower(string myString)
     return lowerString;
 }
 
-int printFile()
+void readFile(vector<vector<string>>& data)
 {
     ifstream infile("teamStats.csv");
     if (!infile)
     {
         cout << "Error opening file 'teamStats.csv'" << endl;
-        return 1;
+        return;
     }
 
-    vector<vector<string>> data;
+    
     string line;
     char delim = ',';
+
     while (getline(infile, line))
     {
         istringstream ss(line);
         vector<string> row;
         string tmp;
+        
         while (getline(ss, tmp, delim))
         {
             row.push_back(tmp);
@@ -79,11 +87,14 @@ int printFile()
     }
 
     infile.close();
+}
 
+int printFile(vector<vector<string>>& data)
+{
     // Print the data stored in the 2D vector
-    for (const auto& row : data)
+    for (auto& row : data)
     {
-        for (const auto& val : row)
+        for (string val : row)
         {
             cout << val << ",";
         }
@@ -91,12 +102,18 @@ int printFile()
     }
 
     return 0;
-
 }
+
 void updatePlayer(vector<vector<string>>& data)
 {
     string playerUpdateTerm;
-    cout << "--------------------------------" << endl;
+
+    set<string> players;
+    for (int i=1; i<data.size(); i++)
+    {
+        players.insert(data[i][0]);
+    }    cout << "--------------------------------" << endl;
+
     cout << "Enter the name of the player you want to update: \t" << endl;
     cin >> playerUpdateTerm;
     playerUpdateTerm = toLower(playerUpdateTerm);
@@ -132,31 +149,37 @@ void updatePlayer(vector<vector<string>>& data)
     }
     if (!foundPlayer)
     {
-        cout << "No stats found for player " << playerUpdateTerm << endl;
+        cout << "Player not found : " << playerUpdateTerm << endl;
     }
 }
 
-void teamSearch()
+void teamSearch(vector<vector<string>>& data)
 {
     string teamSearchTerm;
-    string teamOne = "uclan";
-    string teamTwo = "jaguar";
-    string teamThree = "apple";
+
+    set<string> teams;
+    for (int i=1; i<data.size(); i++)
+    {
+        teams.insert(data[i][1]);
+    }
+
     cout << "--------------------------------" << endl;
     cout << "Enter the name of the team you want the stats of:\t" << endl;
     cin >> teamSearchTerm;
-    teamSearchTerm=toLower(teamSearchTerm);
+    teamSearchTerm = toLower(teamSearchTerm);
+
     while (1)
     {
-        if (cin.fail() || (teamSearchTerm != teamOne && teamSearchTerm != teamTwo && teamSearchTerm != teamThree))
+        if (cin.fail())
         {
             cin.clear();
             cin.ignore(80, '\n');
             // Ask the user once more 
-            cout << "Please only enter a name from the following: " << endl;
-            cout << teamOne << endl;
-            cout << teamTwo << endl;
-            cout << teamThree << endl;
+            cout << "Please enter a team from the following: " << endl;
+            for (string team : teams)
+            {
+                cout << team << endl;
+            }
             cout << "--------------------------------" << endl;
             cin >> teamSearchTerm;
             teamSearchTerm = toLower(teamSearchTerm);
@@ -164,32 +187,17 @@ void teamSearch()
         else
             break;
     }
+
     int totalGoals = 0;
     int totalYellowCards = 0;
     int totalRedCards = 0;
     bool found = false;
 
-    ifstream infile("teamStats.csv");
-    if (!infile)
+    for (auto& row : data)
     {
-        cout << "Error opening file 'teamStats.csv'" << endl;
-        return;
-    }
-
-    string line;
-    getline(infile, line); // skip the header line
-    while (getline(infile, line))
-    {
-        istringstream ss(line);
-        vector<string> row;
-        string tmp;
-        while (getline(ss, tmp, ','))
-        {
-            row.push_back(tmp);
-        }
-
         if (toLower(row[1]) == teamSearchTerm)
         {
+            cout << "found " << endl;
             found = true;
             totalGoals += stoi(row[2]);
             totalYellowCards += stoi(row[3]);
@@ -197,11 +205,15 @@ void teamSearch()
         }
     }
 
-    infile.close();
-
     if (!found)
     {
         cout << "Team not found" << endl;
+        cout << "Please enter a team from the following: " << endl;
+        for (string team : teams)
+        {
+            cout << team << endl;
+        }
+        teamSearch(data);
     }
     else
     {
@@ -209,34 +221,35 @@ void teamSearch()
         cout << "Total Yellow Cards: " << totalYellowCards << endl;
         cout << "Total Red Cards: " << totalRedCards << endl;
     }
-
-
-    
 }
 
-void playerSearch(const vector<vector<string>>& data)
+void playerSearch(vector<vector<string>> data)
 {
-    string nameOne = "mitchell";
-    string nameTwo = "jobs";
-    string nameThree = "edwards";
-    string nameFour = "dan";
     string playerSearchTerm;
+
+    set<string> players;
+    for (int i=1; i<data.size(); i++)
+    {
+        players.insert(data[i][0]);
+    }
+
     cout << "--------------------------------" << endl;
     cout << "Enter the name of the player you want the stats of: \t" << endl;
     cin >> playerSearchTerm;
     playerSearchTerm = toLower(playerSearchTerm);
+
     while (1)
     {
-        if (cin.fail() || (playerSearchTerm != nameOne && playerSearchTerm != nameTwo && playerSearchTerm != nameThree && playerSearchTerm != nameFour))
+        if (cin.fail())
         {
             cin.clear();
             cin.ignore(80, '\n');
             // Ask the user once more 
             cout << "Please only enter a name from the following: " << endl;
-            cout << nameOne << endl;
-            cout << nameTwo << endl;
-            cout << nameThree << endl;
-            cout << nameFour << endl;
+            for (string player : players)
+            {
+                cout << player << endl;
+            }
             cout << "--------------------------------" << endl;
             cin >> playerSearchTerm;
             playerSearchTerm = toLower(playerSearchTerm);
@@ -244,11 +257,10 @@ void playerSearch(const vector<vector<string>>& data)
         }
         else
             break;
-
-
     }
+
     bool foundPlayer = false;
-    for (const auto& row : data) {
+    for (auto& row : data) {
         if (toLower(row[0]) == playerSearchTerm) {
             cout << "--------------------------------" << endl;
             cout << "Stats for " << row[0] << ":" << endl;
@@ -261,22 +273,31 @@ void playerSearch(const vector<vector<string>>& data)
         }
     }
     if (!foundPlayer) {
-        cout << "No stats found for player " << playerSearchTerm << endl;
+        cout << "Player not found : " << playerSearchTerm << endl;
+        cout << "Please enter a player from the following: " << endl;
+        for (string player : players)
+        {
+            cout << player << endl;
+        }
+        playerSearch(data);
     }
 
 }
 
-
-void mainMenu(vector<Player>& players)
+void mainMenu()
 {
     int navigationChoice;
-  
+    vector<vector<string>> data;
+    readFile(data);
+
     cout << "NAVIGATION MENU" << endl;
     cout << "\t 1. Show all stats for all players" << endl;
     cout << "\t 2. Search for a specific player's stats" << endl;
     cout << "\t 3. Search for a teams stats" << endl;
-    cout << "\t 4. Update records for a player" << endl;   
+    cout << "\t 4. Add a new player" << endl;   
+    cout << "\t 5. Update records for a player" << endl;   
     cin >> navigationChoice;
+
     while (1)
     {
         if (cin.fail() || navigationChoice < navMenuLowerBound || navigationChoice>navMenuUpperBound)
@@ -289,59 +310,38 @@ void mainMenu(vector<Player>& players)
         }
         else
             break;
-
     }
+   
     if (navigationChoice == 1)
     {
-        printFile();
-        mainMenu(players);
+        printFile(data);
+        mainMenu();
     }
     else if (navigationChoice == 2)
     {
-        vector<vector<string>> data;
-        ifstream infile("teamStats.csv");
-        if (!infile)
-        {
-            cout << "Error opening file 'teamStats.csv'" << endl;
-        }
-        else
-        {
-            string line;
-            char delim = ',';
-            while (getline(infile, line))
-            {
-                istringstream ss(line);
-                vector<string> row;
-                string tmp;
-                while (getline(ss, tmp, delim))
-                {
-                    row.push_back(tmp);
-                }
-                data.push_back(row);
-            }
-            infile.close();
-            playerSearch(data);
-        }
-        mainMenu(players);
+        playerSearch(data);
+        mainMenu();
     }
     else if (navigationChoice == 3)
     {
-        teamSearch();
-        mainMenu(players);
+        teamSearch(data);
+        mainMenu();
     }
-    else
+    else if (navigationChoice == 4)
     {
-        addPlayer(players);
-        printFile();
+        //addPlayer();
+        printFile(data);
     }
-    
+    else if (navigationChoice == 5)
+    {
+        updatePlayer(data);
+        mainMenu();
+    }
 
 }
 
-
 int main()
 {
-    vector<Player> players;
-    mainMenu(players);
+    mainMenu();
 }
  
