@@ -18,6 +18,14 @@ struct Player {
     int yellowCards = 0;
 };
 
+void printPlayer(Player& player) {
+    cout << "Name: " << player.name << "\t"
+         << "Team: " << player.team << "\t"
+         << "Goals: " << player.goals << "\t"
+         << "Red Cards: " << player.redCards << "\t"
+         << "Yellow Cards: " << player.yellowCards << endl;
+}
+
 void addPlayer(vector<Player>& players) 
 {
     Player newPlayer;
@@ -60,7 +68,7 @@ string toLower(string myString)
     return lowerString;
 }
 
-void readFile(vector<vector<string>>& data)
+void readFile(vector<Player>& playersData)
 {
     ifstream infile("teamStats.csv");
     if (!infile)
@@ -69,81 +77,102 @@ void readFile(vector<vector<string>>& data)
         return;
     }
 
-    
     string line;
     char delim = ',';
 
     while (getline(infile, line))
     {
+        Player player;
         istringstream ss(line);
-        vector<string> row;
-        string tmp;
+        string item;
         
-        while (getline(ss, tmp, delim))
-        {
-            row.push_back(tmp);
+        // Get the name
+        if (getline(ss, item, ',')) {
+            player.name = item;
         }
-        data.push_back(row);
+
+        // Get the team
+        if (getline(ss, item, ',')) {
+            player.team = item;
+        }
+
+         // Get the goals scored
+        if (getline(ss, item, ',')) {
+            stringstream ss2(item);
+            ss2 >> player.goals;
+        }
+
+        // Get the number of yellow cards
+        if (getline(ss, item, ',')) {
+            stringstream ss2(item);
+            ss2 >> player.yellowCards;
+        }
+
+        // Get the number of red cards
+        if (getline(ss, item, ',')) {
+            stringstream ss2(item);
+            ss2 >> player.redCards;
+        }
+
+        // Add the new player playersData to the vector
+        playersData.push_back(player);
     }
 
     infile.close();
 }
 
-int printFile(vector<vector<string>>& data)
+int printFile(vector<Player>& playersData)
 {
-    // Print the data stored in the 2D vector
-    for (auto& row : data)
+    // Print the playersData stored in the 2D vector
+    for (Player player : playersData)
     {
-        for (string val : row)
-        {
-            cout << val << ",";
-        }
-        cout << endl;
+        printPlayer(player);
     }
 
     return 0;
 }
 
-void updatePlayer(vector<vector<string>>& data)
+void updatePlayer(vector<Player>& playersData)
 {
     string playerUpdateTerm;
 
-    set<string> players;
-    for (int i=1; i<data.size(); i++)
+    set<string> playersNames;
+    for (Player player : playersData)
     {
-        players.insert(data[i][0]);
-    }    cout << "--------------------------------" << endl;
+        playersNames.insert(player.name);
+    }    
+    cout << "--------------------------------" << endl;
 
     cout << "Enter the name of the player you want to update: \t" << endl;
     cin >> playerUpdateTerm;
     playerUpdateTerm = toLower(playerUpdateTerm);
 
     bool foundPlayer = false;
-    for (auto& row : data)
+    for (Player player : playersData)
     {
-        if (toLower(row[0]) == playerUpdateTerm)
+        if (toLower(player.name) == playerUpdateTerm)
         {
             foundPlayer = true;
             cout << "--------------------------------" << endl;
-            cout << "Updating stats for " << row[0] << ":" << endl;
-            cout << "Team: " << row[1] << endl;
-            cout << "Goals Scored: " << row[2] << endl;
-            cout << "Yellow Cards: " << row[3] << endl;
-            cout << "Red Cards: " << row[4] << endl;
+            cout << "Updating stats for " << player.name << ":" << endl;
+            cout << "Team: " << player.team << endl;
+            cout << "Goals Scored: " << player.goals << endl;
+            cout << "Yellow Cards: " << player.yellowCards << endl;
+            cout << "Red Cards: " << player.redCards << endl;
 
             cout << "Enter the new team name: ";
-            cin >> row[1];
+            cin >> player.team;
 
             cout << "Enter the new number of goals scored: ";
-            cin >> row[2];
+            cin >> player.goals;
 
             cout << "Enter the new number of yellow cards: ";
-            cin >> row[3];
+            cin >> player.yellowCards;
 
             cout << "Enter the new number of red cards: ";
-            cin >> row[4];
+            cin >> player.redCards;
 
-            cout << "Stats for " << row[0] << " have been updated." << endl;
+            cout << "Stats for " << player.name << " have been updated." << endl;
             break;
         }
     }
@@ -153,14 +182,14 @@ void updatePlayer(vector<vector<string>>& data)
     }
 }
 
-void teamSearch(vector<vector<string>>& data)
+void teamSearch(vector<Player>& playersData)
 {
     string teamSearchTerm;
 
     set<string> teams;
-    for (int i=1; i<data.size(); i++)
+    for (Player player : playersData)
     {
-        teams.insert(data[i][1]);
+        teams.insert(player.team);
     }
 
     cout << "--------------------------------" << endl;
@@ -193,15 +222,14 @@ void teamSearch(vector<vector<string>>& data)
     int totalRedCards = 0;
     bool found = false;
 
-    for (auto& row : data)
+    for (Player player : playersData)
     {
-        if (toLower(row[1]) == teamSearchTerm)
+        if (toLower(player.team) == teamSearchTerm)
         {
-            cout << "found " << endl;
             found = true;
-            totalGoals += stoi(row[2]);
-            totalYellowCards += stoi(row[3]);
-            totalRedCards += stoi(row[4]);
+            totalGoals += player.goals;
+            totalYellowCards += player.yellowCards;
+            totalRedCards += player.redCards;
         }
     }
 
@@ -213,7 +241,7 @@ void teamSearch(vector<vector<string>>& data)
         {
             cout << team << endl;
         }
-        teamSearch(data);
+        teamSearch(playersData);
     }
     else
     {
@@ -223,14 +251,14 @@ void teamSearch(vector<vector<string>>& data)
     }
 }
 
-void playerSearch(vector<vector<string>> data)
+void playerSearch(vector<Player> playersData)
 {
     string playerSearchTerm;
 
     set<string> players;
-    for (int i=1; i<data.size(); i++)
+    for (Player player : playersData)
     {
-        players.insert(data[i][0]);
+        players.insert(player.name);
     }
 
     cout << "--------------------------------" << endl;
@@ -260,14 +288,11 @@ void playerSearch(vector<vector<string>> data)
     }
 
     bool foundPlayer = false;
-    for (auto& row : data) {
-        if (toLower(row[0]) == playerSearchTerm) {
+    for (Player player : playersData) {
+        if (toLower(player.name) == playerSearchTerm) {
             cout << "--------------------------------" << endl;
-            cout << "Stats for " << row[0] << ":" << endl;
-            cout << "Team: " << row[1] << endl;
-            cout << "Goals Scored: " << row[2] << endl;
-            cout << "Yellow Cards: " << row[3] << endl;
-            cout << "Red Cards: " << row[4] << endl;
+            cout << "Stats for " << player.name << ":" << endl;
+            printPlayer(player);
             foundPlayer = true;
             break;
         }
@@ -279,7 +304,7 @@ void playerSearch(vector<vector<string>> data)
         {
             cout << player << endl;
         }
-        playerSearch(data);
+        playerSearch(playersData);
     }
 
 }
@@ -287,8 +312,8 @@ void playerSearch(vector<vector<string>> data)
 void mainMenu()
 {
     int navigationChoice;
-    vector<vector<string>> data;
-    readFile(data);
+    vector<Player> playersData;
+    readFile(playersData);
 
     cout << "NAVIGATION MENU" << endl;
     cout << "\t 1. Show all stats for all players" << endl;
@@ -314,27 +339,27 @@ void mainMenu()
    
     if (navigationChoice == 1)
     {
-        printFile(data);
+        printFile(playersData);
         mainMenu();
     }
     else if (navigationChoice == 2)
     {
-        playerSearch(data);
+        playerSearch(playersData);
         mainMenu();
     }
     else if (navigationChoice == 3)
     {
-        teamSearch(data);
+        teamSearch(playersData);
         mainMenu();
     }
     else if (navigationChoice == 4)
     {
         //addPlayer();
-        printFile(data);
+        printFile(playersData);
     }
     else if (navigationChoice == 5)
     {
-        updatePlayer(data);
+        updatePlayer(playersData);
         mainMenu();
     }
 

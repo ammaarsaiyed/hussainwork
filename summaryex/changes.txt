@@ -9,3 +9,6 @@
 VECTOR (ALL STATS)
     VECTOR (NAME, TEAM, GS, YC, RC)
         STRING
+
+
+        http://www.acodemics.co.uk/2010/03/08/reading-a-csv-file-in-c/
