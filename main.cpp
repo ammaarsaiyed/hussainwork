@@ -7,13 +7,11 @@
 
 using namespace std;
 
-string toLowerCase(const string& input) 
+string toLower(string myString) 
 {
-    string result = input;
-    for (char& c : result) {
-        c = tolower(c);
-    }
-    return result;
+    string lowerString;
+    for (auto c : myString) lowerString += tolower(c);
+    return lowerString;
 }
 
 class OpenAndReadFile 
@@ -50,7 +48,7 @@ class OpenAndReadFile
         }
 };
 
-class TweetFilter 
+class BannedWordFilter 
 {
     public:
         vector<string> tweets;
@@ -59,7 +57,7 @@ class TweetFilter
         vector<int> filteredWords;
         static vector<int> counterArray;
 
-        TweetFilter(vector<string> tweets, vector<string> words) 
+        BannedWordFilter(vector<string> tweets, vector<string> words) 
         {
             this->tweets = tweets;
             this->words = words;
@@ -75,7 +73,7 @@ class TweetFilter
                 {
                     const string& word = words[j];
                     int pos = 0;
-                    while ((pos = toLowerCase(tweet).find(toLowerCase(word), pos)) != string::npos) 
+                    while ((pos = toLower(tweet).find(toLower(word), pos)) != string::npos) 
                     {
                         adder(j);
                         filteredTweet.replace(pos+filteredWords[j], 1, "*");
@@ -171,7 +169,7 @@ class TweetSentimentAnalyzer
             int count = 0;
             for (const auto& word : words)
             {
-                if (toLowerCase(tweet).find(toLowerCase(word)) != string::npos)
+                if (toLower(tweet).find(toLower(word)) != string::npos)
                 {
                     count++;
                 }
@@ -180,7 +178,7 @@ class TweetSentimentAnalyzer
         }
 };
 
-vector<int> TweetFilter::counterArray;  
+vector<int> BannedWordFilter::counterArray;  
 
 int main() 
 {
@@ -203,10 +201,10 @@ int main()
         OpenAndReadFile tweetsReader(tweetsToRead[i]);
         vectorOfTweets.push_back(tweetsReader.getLines());
 
-        TweetFilter filter(vectorOfTweets[i], words);
-        if (TweetFilter::counterArray.empty())
+        BannedWordFilter filter(vectorOfTweets[i], words);
+        if (BannedWordFilter::counterArray.empty())
         {
-            TweetFilter::counterArray.resize(words.size());
+            BannedWordFilter::counterArray.resize(words.size());
         }
 
         vector<int> filteredWords = filter.replaceMiddleChars();
@@ -229,7 +227,7 @@ int main()
     cout << "Top 10 Words found in all files: \n" << endl;
     for (int i = 0; i < words.size(); ++i) 
     {
-        vp.push_back(make_pair(TweetFilter::counterArray[i], i));
+        vp.push_back(make_pair(BannedWordFilter::counterArray[i], i));
     }
       
     sort(vp.begin(), vp.end());

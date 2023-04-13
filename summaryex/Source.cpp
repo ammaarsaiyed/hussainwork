@@ -19,14 +19,14 @@ struct Player {
 };
 
 void printPlayer(Player& player) {
-    cout << "Name: " << player.name << "\t"
-         << "Team: " << player.team << "\t"
-         << "Goals: " << player.goals << "\t"
-         << "Red Cards: " << player.redCards << "\t"
-         << "Yellow Cards: " << player.yellowCards << endl;
+    cout << left << setw(15) << player.name
+         << setw(15) << player.team
+         << setw(10) << player.goals
+         << setw(15) << player.yellowCards
+         << setw(10) << player.redCards << endl;
 }
 
-void addPlayer(vector<Player>& players) 
+void addPlayer(vector<Player>& playersData) 
 {
     Player newPlayer;
     cout << "Enter the players name:\t" << endl;
@@ -58,7 +58,7 @@ void addPlayer(vector<Player>& players)
     cout << "Enter the players yellow cards\t" << endl;
     cin >> newPlayer.yellowCards;
 
-    players.push_back(newPlayer);
+    playersData.push_back(newPlayer);
 }
 
 string toLower(string myString)
@@ -124,6 +124,11 @@ void readFile(vector<Player>& playersData)
 int printFile(vector<Player>& playersData)
 {
     // Print the playersData stored in the 2D vector
+    cout << left << setw(15) << "Name"
+         << setw(15) << "Team"
+         << setw(10) << "Goals"
+         << setw(15) << "Yellow Cards"
+         << setw(10) << "Red Cards" << endl;
     for (Player player : playersData)
     {
         printPlayer(player);
@@ -148,7 +153,7 @@ void updatePlayer(vector<Player>& playersData)
     playerUpdateTerm = toLower(playerUpdateTerm);
 
     bool foundPlayer = false;
-    for (Player player : playersData)
+    for (Player& player : playersData)
     {
         if (toLower(player.name) == playerUpdateTerm)
         {
@@ -173,6 +178,7 @@ void updatePlayer(vector<Player>& playersData)
             cin >> player.redCards;
 
             cout << "Stats for " << player.name << " have been updated." << endl;
+            printPlayer(player);
             break;
         }
     }
@@ -309,11 +315,9 @@ void playerSearch(vector<Player> playersData)
 
 }
 
-void mainMenu()
+void mainMenu(vector<Player> playersData)
 {
     int navigationChoice;
-    vector<Player> playersData;
-    readFile(playersData);
 
     cout << "NAVIGATION MENU" << endl;
     cout << "\t 1. Show all stats for all players" << endl;
@@ -340,33 +344,34 @@ void mainMenu()
     if (navigationChoice == 1)
     {
         printFile(playersData);
-        mainMenu();
+        mainMenu(playersData);
     }
     else if (navigationChoice == 2)
     {
         playerSearch(playersData);
-        mainMenu();
+        mainMenu(playersData);
     }
     else if (navigationChoice == 3)
     {
         teamSearch(playersData);
-        mainMenu();
+        mainMenu(playersData);
     }
     else if (navigationChoice == 4)
     {
-        //addPlayer();
-        printFile(playersData);
+        addPlayer(playersData);
+        mainMenu(playersData);
     }
     else if (navigationChoice == 5)
     {
         updatePlayer(playersData);
-        mainMenu();
+        mainMenu(playersData);
     }
-
 }
 
 int main()
 {
-    mainMenu();
+    vector<Player> playersData;
+    readFile(playersData);
+    mainMenu(playersData);
 }
  
