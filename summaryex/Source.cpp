@@ -5,6 +5,9 @@
 #include<vector>
 #include <string>
 #include <set>  
+#include <algorithm>  
+
+
 using namespace std;
 
 const int navMenuUpperBound = 5;
@@ -18,12 +21,40 @@ struct Player {
     int yellowCards = 0;
 };
 
+bool compareByName(Player& player1, Player& player2) {
+    return player1.name < player2.name;
+}
+
 void printPlayer(Player& player) {
     cout << left << setw(15) << player.name
          << setw(15) << player.team
          << setw(10) << player.goals
          << setw(15) << player.yellowCards
          << setw(10) << player.redCards << endl;
+}
+
+void writeToFile(vector<Player>& playersData) {
+    // Open file for writing
+    ofstream outputFile("teamStats.csv");
+
+    if (!outputFile.is_open()) {
+        cout << "Failed to open file teamStats.csv" << endl;
+        return;
+    }
+
+    outputFile << "Name,Team,Goals Scored,Number of Yellow Cards,Number of Red Cards" << endl;
+
+    // Write player data to CSV file
+    for (Player& player : playersData) {
+        outputFile << player.name << ","
+                    << player.team << ","
+                    << player.goals << ","
+                    << player.yellowCards << ","
+                    << player.redCards << endl;
+    }
+
+    outputFile.close();
+    cout << "Players written to CSV file" << endl;
 }
 
 void addPlayer(vector<Player>& playersData) 
@@ -59,6 +90,9 @@ void addPlayer(vector<Player>& playersData)
     cin >> newPlayer.yellowCards;
 
     playersData.push_back(newPlayer);
+    cout << "Player added." << endl;
+    cout << "--------------------------------" << endl;
+    writeToFile(playersData);
 }
 
 string toLower(string myString)
@@ -79,9 +113,15 @@ void readFile(vector<Player>& playersData)
 
     string line;
     char delim = ',';
+    bool headerRow = true;
 
     while (getline(infile, line))
     {
+        if (headerRow) {
+            headerRow = false;
+            continue;
+        }
+
         Player player;
         istringstream ss(line);
         string item;
@@ -129,6 +169,9 @@ int printFile(vector<Player>& playersData)
          << setw(10) << "Goals"
          << setw(15) << "Yellow Cards"
          << setw(10) << "Red Cards" << endl;
+
+    sort(playersData.begin(), playersData.end(), compareByName);
+
     for (Player player : playersData)
     {
         printPlayer(player);
@@ -179,6 +222,7 @@ void updatePlayer(vector<Player>& playersData)
 
             cout << "Stats for " << player.name << " have been updated." << endl;
             printPlayer(player);
+            writeToFile(playersData);
             break;
         }
     }
